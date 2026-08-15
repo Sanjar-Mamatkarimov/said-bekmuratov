@@ -168,8 +168,9 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles' # Важно для collectstatic
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# Медиафайлы живут внутри static/ — Vercel собирает их через collectstatic и отдаёт с CDN
+MEDIA_URL = '/static/media/'
+MEDIA_ROOT = BASE_DIR / 'static' / 'media'
 
 # --- Настройки CKEditor (Исправлено под версию django-ckeditor) ---
 CKEDITOR_UPLOAD_PATH = "uploads/" # Папка для загрузки в media/
