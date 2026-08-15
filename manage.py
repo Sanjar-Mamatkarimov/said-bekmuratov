@@ -2,10 +2,14 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
+from dotenv import load_dotenv
 
 
 def main():
     """Run administrative tasks."""
+    # Загружаем .env / .env.local для локальной разработки (Vercel env задаются отдельно)
+    load_dotenv()
+    load_dotenv('.env.local')
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'music.settings')
     try:
         from django.core.management import execute_from_command_line

@@ -2,17 +2,22 @@ import httpx
 import threading
 import asyncio
 import html  # Для безопасной отправки текста
+from django.conf import settings
+
 
 def send_telegram_notification(message):
-    token = "8541415214:AAGNPS5iSub0-0f7NtsPnSXxl92DB01ceos"
-    ADMIN_IDS = [1258249360, 8436370827]
+    token = settings.TELEGRAM_BOT_TOKEN
+    admin_ids = settings.TELEGRAM_ADMIN_IDS
+    if not token:
+        print("TELEGRAM_BOT_TOKEN не задан, уведомление пропущено")
+        return
     url = f"https://api.telegram.org/bot{token}/sendMessage"
 
     safe_message = html.escape(message)
 
     async def send_async():
         async with httpx.AsyncClient() as client:
-            for chat_id in ADMIN_IDS:
+            for chat_id in admin_ids:
                 payload = {
                     "chat_id": chat_id,
                     "text": message, # Если хочешь жирный шрифт и т.д., оставь message, но следи за тегами

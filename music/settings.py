@@ -1,20 +1,47 @@
 import os
+import urllib.parse
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Загружаем переменные окружения из .env / .env.local (для локальной разработки)
+load_dotenv()
+load_dotenv('.env.local')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-aa(z7@&!6#=*zy6ps2rtl4i79#zb1bb9jd(xu7_pq939vvr+@7'
+# Задайте DJANGO_SECRET_KEY в переменных окружения Vercel.
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-aa(z7@&!6#=*zy6ps2rtl4i79#zb1bb9jd(xu7_pq939vvr+@7',
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-# Убери https:// и слэши
-ALLOWED_HOSTS = ['stumble-rocket-ladle.ngrok-free.dev', '127.0.0.1', 'localhost']
+# Список хостов через запятую (DJANGO_ALLOWED_HOSTS)
+ALLOWED_HOSTS = os.environ.get(
+    'DJANGO_ALLOWED_HOSTS',
+    '127.0.0.1,localhost,stumble-rocket-ladle.ngrok-free.dev,.vercel.app',
+).split(',')
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://stumble-rocket-ladle.ngrok-free.dev',
+    origin.strip()
+    for origin in os.environ.get(
+        'DJANGO_CSRF_TRUSTED_ORIGINS',
+        'https://stumble-rocket-ladle.ngrok-free.dev',
+    ).split(',')
+    if origin.strip()
+]
+
+# --- Telegram уведомления ---
+# Задайте TELEGRAM_BOT_TOKEN и TELEGRAM_ADMIN_IDS в переменных окружения Vercel.
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+TELEGRAM_ADMIN_IDS = [
+    int(x.strip())
+    for x in os.environ.get('TELEGRAM_ADMIN_IDS', '1258249360,8436370827').split(',')
+    if x.strip().isdigit()
 ]
 
 # Application definition
@@ -26,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
     
     # Библиотеки редактора
     'ckeditor',
@@ -96,12 +124,27 @@ TEMPLATES = [
 WSGI_APPLICATION = 'music.wsgi.application'
 
 # Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# В продакшене (Vercel) задайте DATABASE_URL, например postgres://user:pass@host:5432/dbname
+if os.environ.get('DATABASE_URL'):
+    _db_url = urllib.parse.urlparse(os.environ['DATABASE_URL'])
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': _db_url.path.lstrip('/'),
+            'USER': _db_url.username,
+            'PASSWORD': _db_url.password,
+            'HOST': _db_url.hostname,
+            'PORT': _db_url.port,
+        }
     }
-}
+else:
+    # Локальная разработка
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -145,3 +188,9 @@ CKEDITOR_CONFIGS = {
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# --- Безопасность в продакшене (Vercel завершает TLS) ---
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
