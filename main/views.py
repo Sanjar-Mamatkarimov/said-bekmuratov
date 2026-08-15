@@ -1,7 +1,16 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.http import HttpResponse
 from .models import SiteSettings, Department, Event, Application, Reward, Teacher, Review, GalleryImage
 from .forms import ApplicationForm, ReviewForm
+
+
+def google_verification(request):
+    """Файл подтверждения для Google Search Console (нужен в корне домена)."""
+    return HttpResponse(
+        'google-site-verification: googleb7b17b3ac980d512.html',
+        content_type='text/html',
+    )
 
 def get_context():
     """Базовый контент для всех страниц"""

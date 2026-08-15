@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home, teachers, departments, events, rewards, contacts, reviews, gallery
+from .views import home, teachers, departments, events, rewards, contacts, reviews, gallery, google_verification
 
 urlpatterns = [
     path('', home, name='home'),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('contacts/', contacts, name='contacts'),
     path('reviews/', reviews, name='reviews'),
     path('gallery/', gallery, name='gallery'),
+    path('googleb7b17b3ac980d512.html', google_verification, name='google_verification'),
 ]
