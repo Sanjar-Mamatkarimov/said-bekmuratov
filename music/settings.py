@@ -10,6 +10,9 @@ load_dotenv('.env.local')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Папка с начальными данными (fixtures)
+FIXTURE_DIRS = [BASE_DIR / 'fixtures']
+
 # SECURITY WARNING: keep the secret key used in production secret!
 # Задайте DJANGO_SECRET_KEY в переменных окружения Vercel.
 SECRET_KEY = os.environ.get(

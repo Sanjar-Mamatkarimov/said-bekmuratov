@@ -358,6 +358,57 @@
                 font-size: 1.8rem;
             }
         }
+
+        /* ===== Мобильная адаптивность ===== */
+        @media (max-width: 767.98px) {
+            /* Убираем фиксированный фон (ломается на iOS/Android) */
+            .hero {
+                height: auto !important;
+                min-height: 55vh;
+                padding: 90px 0 60px;
+                background-attachment: scroll !important;
+            }
+
+            .section {
+                padding: 50px 0;
+            }
+
+            .section-title {
+                margin-bottom: 2rem;
+            }
+
+            /* Кнопки CTA на всю ширину */
+            .btn-lg {
+                width: 100%;
+                display: block;
+            }
+
+            /* Длинное название школы не должно вылезать за экран */
+            .navbar-brand {
+                font-size: 1rem;
+                line-height: 1.15;
+                white-space: normal;
+                max-width: calc(100vw - 90px);
+            }
+
+            .navbar-brand img {
+                height: 40px !important;
+                width: 40px !important;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .hero-content h1 {
+                font-size: 1.7rem;
+            }
+
+            .hero-content p {
+                font-size: 0.95rem;
+            }
+
+            .section-title h2 {
+                font-size: 1.5rem;
+            }
         }
     </style>
     {% block extra_css %}{% endblock %}
