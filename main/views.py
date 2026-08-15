@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.http import HttpResponse
+from django.urls import reverse
 from .models import SiteSettings, Department, Event, Application, Reward, Teacher, Review, GalleryImage
 from .forms import ApplicationForm, ReviewForm
 
@@ -11,6 +12,13 @@ def google_verification(request):
         'google-site-verification: googleb7b17b3ac980d512.html',
         content_type='text/html',
     )
+
+
+def robots_txt(request):
+    """robots.txt для поисковых систем."""
+    sitemap_url = request.build_absolute_uri(reverse('django.contrib.sitemaps.views.sitemap'))
+    content = f"User-agent: *\nAllow: /\nSitemap: {sitemap_url}\n"
+    return HttpResponse(content, content_type='text/plain')
 
 def get_context():
     """Базовый контент для всех страниц"""

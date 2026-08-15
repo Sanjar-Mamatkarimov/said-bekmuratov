@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 
-{% block title %}Главная - {{ settings.title }}{% endblock %}
+{% block title %}{{ settings.logo_text|default:"Музыкальная школа им. С. Бекмуратова" }} — официальный сайт{% endblock %}
+
+{% block meta_description %}{{ settings.subtitle|default:"Музыкальная школа им. С. Бекмуратова — обучение музыке: фортепиано, вокал, гитара, скрипка. Запишитесь на пробное занятие!" }}{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
