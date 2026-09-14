@@ -1,0 +1,16 @@
+# --- Vercel: файлы, которые не передаются в сборку ---
+.vercel
+.git
+.venv
+venv
+__pycache__
+*.pyc
+.env
+.env.local
+*.log
+db.sqlite3
+staticfiles
+googleb7b17b3ac980d512.html
+Dockerfile
+docker-compose.yml
+README.md

@@ -1,9 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "python manage.py migrate --noinput && python manage.py load_initial_data",
+  "buildCommand": "python manage.py collectstatic --noinput && python manage.py migrate --noinput && python manage.py load_initial_data",
   "functions": {
     "music/wsgi.py": {
-      "maxDuration": 60
+      "maxDuration": 60,
+      "excludeFiles": "staticfiles/**"
     }
   }
 }
