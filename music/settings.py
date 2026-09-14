@@ -26,14 +26,14 @@ DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 # Список хостов через запятую (DJANGO_ALLOWED_HOSTS)
 ALLOWED_HOSTS = os.environ.get(
     'DJANGO_ALLOWED_HOSTS',
-    '127.0.0.1,localhost,stumble-rocket-ladle.ngrok-free.dev,.vercel.app',
+    '127.0.0.1,localhost,.vercel.app',
 ).split(',')
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
     for origin in os.environ.get(
         'DJANGO_CSRF_TRUSTED_ORIGINS',
-        'https://stumble-rocket-ladle.ngrok-free.dev',
+        'https://said-bekmuratov.vercel.app',
     ).split(',')
     if origin.strip()
 ]
