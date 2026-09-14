@@ -23,20 +23,33 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
 
-# Список хостов через запятую (DJANGO_ALLOWED_HOSTS)
-ALLOWED_HOSTS = os.environ.get(
-    'DJANGO_ALLOWED_HOSTS',
-    '127.0.0.1,localhost,.vercel.app',
-).split(',')
+def _split_csv(value):
+    return [x.strip() for x in value.split(',') if x.strip()]
 
-CSRF_TRUSTED_ORIGINS = [
-    origin.strip()
-    for origin in os.environ.get(
-        'DJANGO_CSRF_TRUSTED_ORIGINS',
-        'https://said-bekmuratov.vercel.app',
-    ).split(',')
-    if origin.strip()
-]
+
+# Список хостов через запятую (DJANGO_ALLOWED_HOSTS)
+ALLOWED_HOSTS = _split_csv(
+    os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost,.vercel.app')
+)
+
+
+def _origin_for_host(host):
+    # Django 5+ поддерживает wildcard в CSRF_TRUSTED_ORIGINS (https://*.vercel.app)
+    if host.startswith('.'):
+        return f'https://*{host}'
+    if host in ('127.0.0.1', 'localhost'):
+        return f'http://{host}'
+    return f'https://{host}'
+
+
+# Доверенные origins вычисляются автоматически из ALLOWED_HOSTS, чтобы не
+# подгонять вручную под домен. Переопределить можно через
+# DJANGO_CSRF_TRUSTED_ORIGINS (через запятую); пустое значение = автоподбор.
+_csrf_origins_env = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').strip()
+if _csrf_origins_env:
+    CSRF_TRUSTED_ORIGINS = _split_csv(_csrf_origins_env)
+else:
+    CSRF_TRUSTED_ORIGINS = [_origin_for_host(h) for h in ALLOWED_HOSTS]
 
 # --- Telegram уведомления ---
 # Задайте TELEGRAM_BOT_TOKEN и TELEGRAM_ADMIN_IDS в переменных окружения Vercel.
