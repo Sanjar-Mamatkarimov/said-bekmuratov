@@ -94,7 +94,7 @@ JAZZMIN_SETTINGS = {
     "site_brand": "Админка Школы",
     "welcome_sign": "Панель управления музыкальной школой",
     "copyright": "Музыкальная школа им. С. Бекмуратова",
-    "search_model": ["auth.User", "main.Afisha"],
+    "search_model": ["auth.User", "main.Event"],
     "show_sidebar": True,
     "navigation_expanded": True,
     "icons": {
@@ -211,3 +211,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
