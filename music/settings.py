@@ -173,12 +173,13 @@ USE_I18N = True
 USE_TZ = True
 
 # --- Статические и медиа файлы ---
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles' # Важно для collectstatic
 
-# Медиафайлы живут внутри static/ — Vercel собирает их через collectstatic и отдаёт с CDN
-MEDIA_URL = '/static/media/'
+# Медиа отдельно от static/, чтобы не было конфликта MEDIA_URL внутри STATIC_URL.
+# Файлы живут в static/media (закоммичены), отдаются по /media/ через Django-роут.
+MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'static' / 'media'
 
 # --- Настройки CKEditor (Исправлено под версию django-ckeditor) ---
