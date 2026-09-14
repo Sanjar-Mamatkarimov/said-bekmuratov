@@ -42,14 +42,10 @@ def _origin_for_host(host):
     return f'https://{host}'
 
 
-# Доверенные origins вычисляются автоматически из ALLOWED_HOSTS, чтобы не
-# подгонять вручную под домен. Переопределить можно через
-# DJANGO_CSRF_TRUSTED_ORIGINS (через запятую); пустое значение = автоподбор.
-_csrf_origins_env = os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').strip()
-if _csrf_origins_env:
-    CSRF_TRUSTED_ORIGINS = _split_csv(_csrf_origins_env)
-else:
-    CSRF_TRUSTED_ORIGINS = [_origin_for_host(h) for h in ALLOWED_HOSTS]
+# Доверенные origins всегда вычисляются из ALLOWED_HOSTS, чтобы никак не
+# зависеть от домена и не сломаться от неверного env (Django 5+ поддерживает
+# wildcard https://*.vercel.app). Для своего домена — добавьте его в DJANGO_ALLOWED_HOSTS.
+CSRF_TRUSTED_ORIGINS = [_origin_for_host(h) for h in ALLOWED_HOSTS]
 
 # --- Telegram уведомления ---
 # Задайте TELEGRAM_BOT_TOKEN и TELEGRAM_ADMIN_IDS в переменных окружения Vercel.
@@ -207,7 +203,10 @@ CKEDITOR_CONFIGS = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # --- Безопасность в продакшене (Vercel завершает TLS) ---
+# SECURE_PROXY_SSL_HEADER нужен всегда (Vercel шлёт X-Forwarded-Proto),
+# чтобы request.is_secure() был True и CSRF-проверка Origin совпадала.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 if not DEBUG:
-    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
