@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 
 # ============================================================
-# ENV
+# ENVIRONMENT
 # ============================================================
 
 load_dotenv()
@@ -14,7 +14,7 @@ load_dotenv(".env.local")
 
 
 # ============================================================
-# PATHS
+# BASE DIRECTORY
 # ============================================================
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -89,7 +89,7 @@ TELEGRAM_ADMIN_IDS = [
     int(item.strip())
     for item in os.environ.get(
         "TELEGRAM_ADMIN_IDS",
-        "1258249360,8436370827",
+        "",
     ).split(",")
     if item.strip().isdigit()
 ]
@@ -100,10 +100,8 @@ TELEGRAM_ADMIN_IDS = [
 # ============================================================
 
 INSTALLED_APPS = [
-    # Admin theme
     "jazzmin",
 
-    # Django
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -112,14 +110,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sitemaps",
 
-    # CKEditor
     "ckeditor",
     "ckeditor_uploader",
 
-    # S3 storage
     "storages",
 
-    # Main application
     "main",
 ]
 
@@ -146,7 +141,7 @@ MIDDLEWARE = [
 
 
 # ============================================================
-# URL CONFIGURATION
+# URL / WSGI
 # ============================================================
 
 ROOT_URLCONF = "music.urls"
@@ -207,35 +202,25 @@ JAZZMIN_SETTINGS = {
 
     "icons": {
         "auth": "fas fa-users-cog",
-
         "auth.user": "fas fa-user",
-
         "auth.Group": "fas fa-users",
 
         "main.Afisha": "fas fa-calendar-alt",
-
         "main.Zayavki": "fas fa-envelope-open-text",
-
         "main.Nagrady": "fas fa-trophy",
-
         "main.NashiUchitelya": "fas fa-chalkboard-teacher",
-
         "main.OsnovnyeNastroiki": "fas fa-cogs",
-
         "main.Otdeleniya": "fas fa-music",
     },
 
     "default_icon_parents": "fas fa-chevron-circle-right",
-
     "default_icon_children": "fas fa-circle",
 }
 
 
 JAZZMIN_UI_TWEAKS = {
     "theme": "flatly",
-
     "navbar_fixed": True,
-
     "sidebar_fixed": True,
 }
 
@@ -289,7 +274,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # ============================================================
-# INTERNATIONALIZATION
+# LANGUAGE / TIMEZONE
 # ============================================================
 
 LANGUAGE_CODE = "ru-ru"
@@ -305,7 +290,6 @@ USE_TZ = True
 # STATIC FILES
 # ============================================================
 
-# CSS / JS / favicon / статические изображения
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
@@ -316,70 +300,51 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 # ============================================================
-# SUPABASE S3 STORAGE
+# SUPABASE S3
 # ============================================================
 
-SUPABASE_S3_ACCESS_KEY = os.environ.get(
+AWS_ACCESS_KEY_ID = os.environ.get(
     "SUPABASE_S3_ACCESS_KEY",
     "",
 )
 
-SUPABASE_S3_SECRET_KEY = os.environ.get(
+AWS_SECRET_ACCESS_KEY = os.environ.get(
     "SUPABASE_S3_SECRET_KEY",
     "",
 )
 
-SUPABASE_S3_ENDPOINT_URL = os.environ.get(
+AWS_STORAGE_BUCKET_NAME = "media"
+
+AWS_S3_ENDPOINT_URL = os.environ.get(
     "SUPABASE_S3_ENDPOINT_URL",
     "",
 )
 
-SUPABASE_S3_REGION = os.environ.get(
+AWS_S3_REGION_NAME = os.environ.get(
     "SUPABASE_S3_REGION",
     "us-east-1",
 )
 
-
-# Django-storages / boto3
-AWS_ACCESS_KEY_ID = SUPABASE_S3_ACCESS_KEY
-
-AWS_SECRET_ACCESS_KEY = SUPABASE_S3_SECRET_KEY
-
-AWS_STORAGE_BUCKET_NAME = "media"
-
-AWS_S3_ENDPOINT_URL = SUPABASE_S3_ENDPOINT_URL
-
-AWS_S3_REGION_NAME = SUPABASE_S3_REGION
-
-# Supabase рекомендует path-style для S3 endpoint
 AWS_S3_ADDRESSING_STYLE = "path"
 
-# Supabase S3 использует Signature V4
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 
-# Не перезаписывать одинаковые имена файлов
 AWS_S3_FILE_OVERWRITE = False
 
-# Публичные URL без подписанных query-параметров.
-# Это предполагает, что bucket "media" публичный.
 AWS_QUERYSTRING_AUTH = False
 
-# HTTPS
 AWS_S3_USE_SSL = True
 
 
 # ============================================================
-# DJANGO STORAGE BACKENDS
+# STORAGE
 # ============================================================
 
 STORAGES = {
-    # ВСЕ FileField / ImageField / CKEditor uploads
-    # будут сохраняться в Supabase Storage.
     "default": {
         "BACKEND": "storages.backends.s3.S3Storage",
     },
 
-    # CSS / JS / static files
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
@@ -417,7 +382,7 @@ CKEDITOR_CONFIGS = {
 
 
 # ============================================================
-# DEFAULT PRIMARY KEY
+# DEFAULT AUTO FIELD
 # ============================================================
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
@@ -438,7 +403,6 @@ SECURE_PROXY_SSL_HEADER = (
 # ============================================================
 
 if not DEBUG:
-
     SESSION_COOKIE_SECURE = True
 
     CSRF_COOKIE_SECURE = True
