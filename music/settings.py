@@ -207,25 +207,24 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
-    
-DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+
+# S3 / Supabase Storage Configuration
 AWS_ACCESS_KEY_ID = os.getenv("SUPABASE_S3_ACCESS_KEY")
 AWS_SECRET_ACCESS_KEY = os.getenv("SUPABASE_S3_SECRET_KEY")
 AWS_STORAGE_BUCKET_NAME = "media"
 AWS_S3_ENDPOINT_URL = os.getenv("SUPABASE_S3_ENDPOINT_URL")
 AWS_S3_REGION_NAME = "us-east-1"
+AWS_S3_FILE_OVERWRITE = False
+AWS_QUERYSTRING_AUTH = False  # Чтобы ссылки на картинки были прямыми и без токенов
 
+# Классическое объявление (гарантирует подгрузку бэкенда)
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+
+# Современное объявление Django 4.2+ / 5.x / 6.x
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
-        "OPTIONS": {
-            "access_key": os.getenv("SUPABASE_S3_ACCESS_KEY"),
-            "secret_key": os.getenv("SUPABASE_S3_SECRET_KEY"),
-            "bucket_name": "media",
-            "endpoint_url": os.getenv("SUPABASE_S3_ENDPOINT_URL"),
-            "region_name": "us-east-1",
-            "file_overwrite": False,
-        },
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
