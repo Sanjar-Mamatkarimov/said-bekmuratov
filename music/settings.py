@@ -1,9 +1,10 @@
 import os
 import urllib.parse
 from pathlib import Path
+import dj_database_url
 from dotenv import load_dotenv
 
-# Загружаем переменные окружения из .env / .env.local (для локальной разработки)
+# Загружаем переменные окружения из .env / .env.local
 load_dotenv()
 load_dotenv('.env.local')
 
@@ -14,7 +15,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 FIXTURE_DIRS = [BASE_DIR / 'fixtures']
 
 # SECURITY WARNING: keep the secret key used in production secret!
-# Задайте DJANGO_SECRET_KEY в переменных окружения Vercel.
 SECRET_KEY = os.environ.get(
     'DJANGO_SECRET_KEY',
     'django-insecure-aa(z7@&!6#=*zy6ps2rtl4i79#zb1bb9jd(xu7_pq939vvr+@7',
@@ -22,6 +22,7 @@ SECRET_KEY = os.environ.get(
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False') == 'True'
+
 
 def _split_csv(value):
     return [x.strip() for x in value.split(',') if x.strip()]
@@ -34,7 +35,6 @@ ALLOWED_HOSTS = _split_csv(
 
 
 def _origin_for_host(host):
-    # Django 5+ поддерживает wildcard в CSRF_TRUSTED_ORIGINS (https://*.vercel.app)
     if host.startswith('.'):
         return f'https://*{host}'
     if host in ('127.0.0.1', 'localhost'):
@@ -42,13 +42,9 @@ def _origin_for_host(host):
     return f'https://{host}'
 
 
-# Доверенные origins всегда вычисляются из ALLOWED_HOSTS, чтобы никак не
-# зависеть от домена и не сломаться от неверного env (Django 5+ поддерживает
-# wildcard https://*.vercel.app). Для своего домена — добавьте его в DJANGO_ALLOWED_HOSTS.
 CSRF_TRUSTED_ORIGINS = [_origin_for_host(h) for h in ALLOWED_HOSTS]
 
 # --- Telegram уведомления ---
-# Задайте TELEGRAM_BOT_TOKEN и TELEGRAM_ADMIN_IDS в переменных окружения Vercel.
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_ADMIN_IDS = [
     int(x.strip())
@@ -135,22 +131,19 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'music.wsgi.application'
 
-# Database
-# В продакшене (Vercel) задайте DATABASE_URL, например postgres://user:pass@host:5432/dbname
-if os.environ.get('DATABASE_URL'):
-    _db_url = urllib.parse.urlparse(os.environ['DATABASE_URL'])
+# Database Connection (Neon PostgreSQL / SQLite)
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': _db_url.path.lstrip('/'),
-            'USER': _db_url.username,
-            'PASSWORD': _db_url.password,
-            'HOST': _db_url.hostname,
-            'PORT': _db_url.port,
-        }
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
 else:
-    # Локальная разработка
+    # Локальная разработка (SQLite, если DATABASE_URL не передан)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -175,15 +168,13 @@ USE_TZ = True
 # --- Статические и медиа файлы ---
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles' # Важно для collectstatic
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Медиа отдельно от static/, чтобы не было конфликта MEDIA_URL внутри STATIC_URL.
-# Файлы живут в static/media (закоммичены), отдаются по /media/ через Django-роут.
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'static' / 'media'
 
-# --- Настройки CKEditor (Исправлено под версию django-ckeditor) ---
-CKEDITOR_UPLOAD_PATH = "uploads/" # Папка для загрузки в media/
+# --- Настройки CKEditor ---
+CKEDITOR_UPLOAD_PATH = "uploads/"
 CKEDITOR_IMAGE_BACKEND = "pillow"
 
 CKEDITOR_CONFIGS = {
@@ -193,7 +184,7 @@ CKEDITOR_CONFIGS = {
         'height': 300,
         'width': '100%',
         'extraPlugins': ','.join([
-            'uploadimage', # Плагин для загрузки перетаскиванием
+            'uploadimage',
             'codesnippet',
             'widget',
             'dialog',
@@ -203,9 +194,7 @@ CKEDITOR_CONFIGS = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# --- Безопасность в продакшене (Vercel завершает TLS) ---
-# SECURE_PROXY_SSL_HEADER нужен всегда (Vercel шлёт X-Forwarded-Proto),
-# чтобы request.is_secure() был True и CSRF-проверка Origin совпадала.
+# --- Безопасность в продакшене ---
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 if not DEBUG:

@@ -136,6 +136,7 @@ class Teacher(models.Model):
     specialty = models.CharField(max_length=100, verbose_name="Специализация (напр. Фортепиано)")
     experience = models.CharField(max_length=100, verbose_name="Стаж/Регалии", blank=True)
     description = RichTextUploadingField(verbose_name="О себе", blank=True)
+    phone_number = models.CharField(max_length=20, verbose_name='Тел учителя')
     order = models.PositiveIntegerField(default=0, verbose_name="Порядок вывода")
 
     class Meta:
