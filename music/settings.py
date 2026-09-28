@@ -55,6 +55,10 @@ TELEGRAM_ADMIN_IDS = [
 # Application definition
 INSTALLED_APPS = [
     'jazzmin', 
+    
+    # Cloudinary приложения (должны быть до staticfiles)
+    'cloudinary_storage',
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -62,6 +66,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sitemaps',
+    
+    'cloudinary',
     
     # Библиотеки редактора
     'ckeditor',
@@ -116,7 +122,7 @@ JAZZMIN_UI_TWEAKS = {
 
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'BACKEND': 'django.template.backends.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -171,7 +177,36 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'static' / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'
+
+# --- Настройки Cloudinary ---
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.environ.get('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.environ.get('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.environ.get('CLOUDINARY_API_SECRET'),
+}
+
+# Если проект запущен на Vercel (или есть переменные Cloudinary) — используем облако
+IS_VERCEL = os.environ.get('VERCEL') == '1' or os.environ.get('CLOUDINARY_CLOUD_NAME')
+
+if IS_VERCEL:
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
 
 # --- Настройки CKEditor ---
 CKEDITOR_UPLOAD_PATH = "uploads/"
@@ -200,7 +235,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True
+    # Vercel сам разруливает SSL перенаправления, отключаем локальный редирект Django во избежание бесконечных цикла редиректов
+    SECURE_SSL_REDIRECT = False if os.environ.get('VERCEL') else True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
